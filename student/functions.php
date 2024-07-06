@@ -1,4 +1,77 @@
 <?php
+function getData($table, $id){
+	global $db;
+	if (is_numeric($id)) {
+		$sql  = $db->query("SELECT * FROM $table WHERE id = '$id' ");
+		return $sql->fetchArray();
+	}
+	else{
+		$wheres = [];
+
+		foreach ($id as $key => $value) {
+			$value = $db->escapeString($value);
+			array_push($wheres, "`$key` = '$value' ");
+		}
+
+		return $db->query("SELECT * FROM `$table` WHERE ".implode(" AND ", $wheres))->fetchArray();
+	}
+}
+
+function db_update($table, $cv, $where){
+	global $db;
+	$wheres = [];
+
+	foreach ($where as $key => $value) {
+		$value = $db->escapeString($value);
+		array_push($wheres, "`$key` = '$value' ");
+	}
+
+	$contentValues = [];
+
+	foreach ($cv as $key => $value) {
+		$value = $db->escapeString($value);
+		array_push($contentValues, "`$key` = '$value' ");
+	}
+	$cvs = implode(", ", $contentValues);
+
+	return $db->query("UPDATE `$table` SET $cvs WHERE ".implode(" AND ", $wheres));
+}
+
+function db_delete($table, $where){
+	global $db;
+	$wheres = [];
+
+	foreach ($where as $key => $value) {
+		$value = $db->escapeString($value);
+		array_push($wheres, "`$key` = '$value' ");
+	}
+
+	return $db->query("DELETE FROM `$table` WHERE ".implode(" AND ", $wheres));
+}
+
+function db_insert($table, $array)
+{
+	global $db;
+
+	$columns = [];
+	$values = [];
+	$read = $db->query("PRAGMA table_info(`$table`)");
+	while ($row = $read->fetchArray(SQLITE3_ASSOC)) {
+		array_push($columns, "`{$row['name']}`");
+		if ($row['pk'] == "1") {
+			array_push($values, "NULL");
+		}
+		else{
+			$value = isset($array[$row['name']]) ? $db->escapeString($array[$row['name']]) : "0";
+			array_push($values, "'$value'");
+		}
+	}
+
+	$sql = "INSERT INTO `$table` (".implode(",",$columns).") VALUES (".implode(",",$values).")";
+	$db->query($sql);
+	//return $db->insert_id;
+}
+
 function student($studentId)
 {
 	global $db;

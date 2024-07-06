@@ -418,7 +418,7 @@ elseif (isset($_GET['acayear'], $_GET['form'], $_GET['term'])) {
 	$year = (int)trim($_GET['acayear']);
 	$form = (int)trim($_GET['form']);
 	$term = (int)trim($_GET['term']);
-	echo "$year,$form,$term";
+	//echo "$year,$form,$term";
 	echo "<option value='0'>End of term</option>";
 	$read = $db->query("SELECT * FROM exams WHERE year = '$year' AND form = '$form' AND term = '$term' ");
 	while ($row = $read->fetchArray()) {
@@ -842,6 +842,13 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 		$year = $_SESSION['acayear'] = $acayear = $db->escapeString($_POST['acayear']);
 		$mode = $_SESSION['mode'] = (int)trim($_POST['mode']);
 		$exam_data = $db->query("SELECT * FROM exams WHERE id = '$mode' ")->fetchArray();
+
+		db_delete("ordered", [
+			'year' => $year,
+			'form' => $form,
+			'term' => $term,
+			'exam' => $mode
+		]);
 		?>
 		<h1>Exam name: <b><?=$exam_data['name'];?></b></h1>
 		<div class="alert alert-info">
@@ -963,12 +970,19 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 						arsort($mega);
 					}
 
+					/**
+					 *Also save progress for students reports 
+					 */
+					$values = [];
+					$sql_ref = "INSERT INTO ordered (`id`, `year`, `form`, `term`, `exam`, `position`, `student`, `reg`, `points`, `comments`, `remarks`, `status`, `subjects`, `average`) VALUES ";
+
 					$i = 1;
 					$failed = [];
 					$previous = 0;
 					$pre_pos = 1;
 					foreach ($mega as $key => $value) {
 						$calculated = $aggregate_store[$key];
+						$reg = $regnumbers[$key];
 						
 						if ($calculated[3]) {
 							$status = "PASS";
@@ -985,8 +999,15 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 							else{
 								echo "<tr><td>$pre_pos</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 							}
-							$i += 1;
+							
 							$previous = $value;
+							$count = count($calculated[1]);
+							$average = (int)(array_sum(array_values($calculated[1]))/$count);
+
+							//add to values
+							array_push($values, "(NULL, '$year','$form','$term','$mode', '$i','$key','$reg','$value','','','$status','$count','$average')");
+
+							$i += 1;
 						}
 						else{
 							$failed[$key] = $value;
@@ -999,6 +1020,8 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 					$osamaliza_mayeso = [];
 					foreach ($failed as $key => $value) {
 						$calculated = $aggregate_store[$key];
+						$reg = $regnumbers[$key];
+
 						if (count($calculated[1]) > 5) {
 
 							if($value == $previous){
@@ -1013,8 +1036,16 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 							else{
 								echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 							}
-							$i += 1;
+							
 							$previous = $value;
+
+							$count = count($calculated[1]);
+							$average = (int)(array_sum(array_values($calculated[1]))/$count);
+
+							//add to values
+							array_push($values, "(NULL, '$year','$form','$term','$mode','$i','$key','$reg','$value','','','FAILED','$count','$average')");
+
+							$i += 1;
 						}
 						else{
 							$osamaliza_mayeso[$key] = $value;
@@ -1022,6 +1053,8 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 					}
 
 					foreach ($osamaliza_mayeso as $key => $value) {
+						$reg = $regnumbers[$key];
+
 						if($value == $previous){
 						}
 						else{
@@ -1033,8 +1066,23 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 						else{
 							echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 						}
-						$i += 1;
+						
 						$previous = $value;
+
+						$count = count($calculated[1]);
+							$average = (int)(array_sum(array_values($calculated[1]))/$count);
+
+						//add to values
+						array_push($values, "(NULL, '$year','$form','$term','$mode','$i','$key','$reg','$value','','','FAILED','$count','$average')");
+
+						$i += 1;
+					}
+
+					$chuncks = array_chunk($values, 80);
+					foreach ($chuncks as $chunck) {
+						if (count($chunck) > 0) {
+							$db->query($sql_ref." ".implode(", ", $chunck));
+						}
 					}
 					?>
 				</tbody>

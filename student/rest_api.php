@@ -142,6 +142,17 @@ elseif (isset($_POST['start_registration'], $_POST['term'], $_POST['form'], $_PO
 		<?php
 	}
 }
+elseif (isset($_GET['acayear'], $_GET['form'], $_GET['term'])) {
+	$year = (int)trim($_GET['acayear']);
+	$form = (int)trim($_GET['form']);
+	$term = (int)trim($_GET['term']);
+	//echo "$year,$form,$term";
+	echo "<option value='0'>End of term</option>";
+	$read = $db->query("SELECT * FROM exams WHERE year = '$year' AND form = '$form' AND term = '$term' ");
+	while ($row = $read->fetchArray()) {
+		echo "<option value='{$row['id']}'>{$row['name']}</option>";
+	}
+}
 elseif (isset($_GET['load_all_registered'])) {
 	$term = $_SESSION['term'];
 	$form = $_SESSION['form'];
@@ -255,97 +266,58 @@ elseif (isset($_POST['start_upload_service'])) {
 	$_SESSION['term'] = $term = $db->escapeString($_POST['term']);
 	$_SESSION['form'] = $form = $db->escapeString($_POST['form']);
 	$_SESSION['group'] = $group = $db->escapeString($_POST['group']);
-	$_SESSION['acayear'] = $acayear = $db->escapeString($_POST['acayear']);
+	$year = $_SESSION['acayear'] = $acayear = $db->escapeString($_POST['acayear']);
+	$_SESSION['mode'] = $mode = (int)$_POST['mode'];
 
 	$student_id = $_SESSION['student_id'];
 
-	$check_sql = $db->query("SELECT * FROM registered WHERE student = '$student_id' AND form = '$form' AND term = '$term' AND year = '$acayear' AND `group` = '$group'");
-	$df = $check_sql->fetchArray();
-	if ($df) {
+	$check_sql = $db->query("SELECT * FROM registered WHERE student = '$student_id' AND form = '$form' AND term = '$term' AND year = '$acayear' ");
+	$rows = [];
+	while($df = $check_sql->fetchArray()){
+		array_push($rows, $df);
+	}
+
+	if (count($rows) > 0) {
 		
-		$sql = $db->query("SELECT DISTINCT student FROM registered WHERE form = '$form' AND term = '$term' AND year = '$acayear' AND `group` = '$group'");
-		$dg = $sql->fetchArray();
-		if ($dg) {
-			$sql = $db->query("SELECT DISTINCT student FROM registered WHERE form = '$form' AND term = '$term' AND year = '$acayear' AND `group` = '$group'");
-			$mega = [];
-			while ($row = $sql->fetchArray()) {
-				$studentId = $row['student'];
-				$calculated = aggregate_points($studentId);
-				$points = $calculated[0];
-				$mega[$studentId] = $points;
-			}
+		$data = getData("ordered", [
+			'form' => $form,
+			'term' => $term,
+			'year' => $year,
+			'student' => $student_id,
+			'exam' => $_POST['mode']
+		]);
 
-			asort($mega);
-			//setting hide display for junior
-			
-				?>
-				<div class="alert alert-info">Viewing results for academic year <b><?php echo acayear($acayear);?></b>, form <b><?="$form $group";?></b>, term <b><?="$term";?></b></div>
-				<table class="w3-table w3-table-all" border="1">
-					<th>Position</th><th>Student Name</th><?php if($form > 2){?><th>Aggregate</th><?php } ?><th>Subjects</th><th>Average</th>
+		$student_data = getData("student", ['id' => $student_id]);
+
+		if ($data != null) {
+			?>
+			<div class="alert alert-info">Viewing results for academic year <b><?php echo acayear($acayear);?></b>, form <b><?="$form $group";?></b>, term <b><?="$term";?></b></div>
+			<table class="w3-table w3-table-all" border="1">
+				<thead>
+					<th>Position</th>
+					<th>Student Name</th>
+					<?php if($form > 2){?><th>Aggregate</th><?php } ?>
+					<th>Subjects</th>
+					<th>Average</th>
+				</thead>
+				<tbody>
 					<?php
-					$i = 1;
-					$zatsala = [];
-					foreach ($mega as $key => $val) {
-			    		$studentId = $key;
-						$user_sql = $db->query("SELECT * FROM student WHERE id = '$studentId' ");
-						$user_data = $user_sql->fetchArray();
-						$student_name = $user_data['fullname'];
-
-						$count_sql = $db->query("SELECT COUNT(student) AS countAll FROM registered WHERE student = '$studentId' AND form = '$form' AND term = '$term' AND year = '$acayear' AND `group` = '$group'");
-						$hu = $count_sql->fetchArray();
-						$total_count = $hu['countAll'];
-						$calculated = aggregate_points($studentId);
-
-						if ($calculated[0] < 6) {
-							$zatsala[$studentId] = $calculated[0];
+						echo "<tr><td>{$data['position']}</td><td>{$student_data['fullname']}</td>";
+						if($form > 2){
+							echo "<td>".$data['points']."</td>";
 						}
-						else{
-							if ($studentId == $_SESSION['student_id']) {
-								
-								echo "<tr><td>$i</td><td>$student_name</td>";
-								if($form > 2){
-									echo "<td>".$calculated[0]."</td>";
-								}
-								echo "<td>$total_count</td><td>".$calculated[1]."</td></tr>";
-							}
-							$i += 1;
-						}
-					}
-					if (count($zatsala) > 0) {
-						
-						foreach ($zatsala as $key => $val) {
-				    		$studentId = $key;
-							$user_sql = $db->query("SELECT * FROM student WHERE id = '$studentId' ");
-							$user_data = $user_sql->fetchArray();
-							$student_name = $user_data['fullname'];
-
-							$count_sql = $db->query("SELECT COUNT(student) AS countAll FROM registered WHERE student = '$studentId' AND form = '$form' AND term = '$term' AND year = '$acayear' AND `group` = '$group'");
-							$gt = $count_sql->fetchArray();
-							$total_count = $gt['countAll'];
-							$calculated = aggregate_points($studentId);
-
-							if ($studentId == $_SESSION['student_id']) {
-								echo "<tr><td>$i</td><td>$student_name</td>";
-								if($form > 2){
-									echo "<td>".$calculated[0]."</td>";
-								}
-								echo "<td>$total_count</td><td>".$calculated[1]."</td></tr>";
-							}
-							$i += 1;
-							
-						}
-					}
+						echo "<td>{$data['subjects']}</td><td>".$data['average']."</td></tr>";
 					?>
-				</table><br>
-				<p>Download school report</p>
-				<a href="download_pdf.php" class='btn btn-sm btn-info'><i class="fa fa-arrow-down"></i> Download</a>
-				<?php
-			
+				</tbody>
+			</table><br>
+			<p>Download school report</p>
+			<a href="download_pdf.php?mode=<?=$mode;?>" target="_blank" class='btn btn-sm btn-info'><i class="fa fa-arrow-down"></i> Download</a>
+			<?php
 		}
 		else{
 			?>
 			<div class="alert alert-danger">
-				There is no student for academic year <b><?php echo acayear($acayear);?></b>, form <b><?="$form $group";?></b>, term <b><?="$term";?></b>
+				Results have not been uploaded yet
 			</div>
 			<?php
 		}

@@ -128,7 +128,7 @@ else{
 						        		</select></p>
 						        		<p><select name="group" class="form-control" required>
 						        			<option value="">--Choose group</option>
-						        			<option>A</option>
+						        			<option>DAY</option>
 						        			<option>B</option>
 						        			<option>C</option>
 						        			<option>D</option>
@@ -182,7 +182,7 @@ else{
 						        		</select></p>
 						        		<p><select name="group" class="form-control" required>
 						        			<option value="">--Choose group</option>
-						        			<option>A</option>
+						        			<option>DAY</option>
 						        			<option>B</option>
 						        			<option>C</option>
 						        			<option>D</option>
@@ -220,7 +220,7 @@ else{
 						<div class="w3-row">
 				        		<div class="w3-col m4 w3-padding w3-border-right">
 						        	<form id="start_upload">
-						        		<p><select name="acayear" class="form-control" required>
+						        		<p><select name="acayear" class="form-control gg" required>
 						        			<option value="">--Choose academic year</option>
 						        			<?php
 						        			$read = $db->query("SELECT * FROM year");
@@ -229,16 +229,16 @@ else{
 						        			}
 						        			?>
 						        		</select></p>
-						        		<p><select name="form" class="form-control" required>
+						        		<p><select name="form" class="form-control gg " required>
 						        			<option value="">--Choose form</option>
-						        			<option>1</option>
-						        			<option>2</option>
-						        			<option>3</option>
-						        			<option>4</option>
+						        			<option value="1">Form 1</option>
+						        			<option value="2">Form 2</option>
+						        			<option value="3">Form 3</option>
+						        			<option value="4">Form 4</option>
 						        		</select></p>
 						        		<p><select name="group" class="form-control" required>
 						        			<option value="">--Choose group</option>
-						        			<option>A</option>
+						        			<option>DAY</option>
 						        			<option>B</option>
 						        			<option>C</option>
 						        			<option>D</option>
@@ -248,12 +248,17 @@ else{
 						        			<option>EVENING</option>
 						        			<option>G</option>
 						        		</select></p>
-						        		<p><select name="term" class="form-control" required>
+						        		<p><select name="term" class="form-control gg" required>
 						        			<option value="">--Choose term</option>
-						        			<option>1</option>
-						        			<option>2</option>
-						        			<option>3</option>
+						        			<option value="1">Term 1</option>
+						        			<option value="2">Term 2</option>
+						        			<option value="3">Term 3</option>
 						        		</select></p>
+						        		<p>
+						        			<select class="form-control" name="mode" id="resultsMode">
+						        				<option value="0">End of term</option>
+						        			</select>
+						        		</p>
 						        		<input type="hidden" name="start_upload_service" value="true">
 						        		<center>
 						        			<button class="btn btn-sm btn-info" id="do_me2">View</button>
@@ -345,6 +350,10 @@ else{
 <script type="text/javascript" language="javascript" src="../examples/resources/syntax/shCore.js"></script>
 <script type="text/javascript" language="javascript" src="../examples/resources/demo.js"></script>
 <script type="text/javascript" language="javascript" class="init">
+	function _(id) {
+		return document.getElementById(id);
+	}
+	
 	$(document).ready(function() {
 		$('#example').DataTable();
 
@@ -491,6 +500,20 @@ else{
 			}
 		});
 	});
+
+	$('.gg').on('change', function(event) {
+		var form = _('start_upload');
+		$.ajax({
+			url: "rest_api.php",
+			method: "GET",
+			data: {acayear:form.acayear.value, form:form.form.value, term:form.term.value},
+			success: function(response) {
+				//Toast(response)
+				$('#resultsMode').html(response);
+			}
+		})
+		
+	})
 
 	function edit_grades(id) {
 		$('#edit_results_content').load("rest_api.php?edit_grades=true&studentId="+id);

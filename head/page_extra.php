@@ -63,14 +63,14 @@ if ($form > 2)
 	$pdf->print_third("40%-44% = 8 points(marginal pass), 45%-49%= 7 points(strong pass)", "", "");
 	$pdf->print_third("50%-54% = 6 points (marginal credit), 55%-59%= 5 points (credit)", "", "");
 	$pdf->Cell(0,7,"60%-64% = 4 points (credit), 65%-69%= 3 points (Strong Credit), 70%-79% = 2 points (Distinction), 80%-100% = 1 point (Distinction)",'','T','L',false);
-	$pdf->Ln();
+	$pdf->Ln(2);
 	$pdf->SetFont('Times','B',12);
 	$pdf->print_third("SCHOOL REQUIREMENTS:", "", "");
 	$pdf->SetFont('Times','I',12);
 	$pdf->print_third("UNIFORM:.$uniform", "", "");
 	$pdf->print_third("FEES: K".$fees, "","");
               
-	$pdf->Ln();
+	$pdf->Ln(2);
 	$pdf->print_half_half("VILLAGE: ".$student_village[$key], "CHURCH: ".$student_church[$key]); 
 	$pdf->Ln();
 	$pdf->print_half_half("GUARDIAN: ".$student_guardian[$key], "PHONE NO:.".$student_lamwa[$key]);          
@@ -82,7 +82,7 @@ else{
 	//$pdf->print_third("40%-49% = D(Pass)", "", "");
 	//$pdf->print_third("50%-64% = C(Pass), 50%-64% = C(Good), 65%-75%= B(Very Good)", "", "");
 	$pdf->Cell(0,7,"40%-49% = D (Pass), 50%-64% = C (Good), 65%-75%= B (Very Good), 76%-100% = A (Excellent)",'','T','L',false);
-	$pdf->Ln();
+	$pdf->Ln(2);
 	$pdf->SetFont('Times','B',12);
 	$pdf->print_third("SCHOOL REQUIREMENTS:", "FEES: K".$fees, "","" );
 	$pdf->SetFont('Times','I',12);
@@ -90,7 +90,7 @@ else{
 
                
     $pdf->SetFont('Times','',10);
-	$pdf->Ln();
+	$pdf->Ln(2);
 	$pdf->print_half_half("VILLAGE: ".$student_village[$key], "CHURCH: ".$student_church[$key]);     
 	$pdf->Ln();
 	$pdf->print_half_half("GUARDIAN: ".$student_guardian[$key], "PHONE: ".$student_lamwa[$key]); 
