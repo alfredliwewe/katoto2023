@@ -7,6 +7,7 @@ $system = new System($db);
 ?><!DOCTYPE html>
 <html>
 <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?=$config['name'];?> - Login Portal</title>
 	<script type="text/javascript" src="stopusers.js"></script>
 	<link rel="stylesheet" type="text/css" href="w3css/w3.css">

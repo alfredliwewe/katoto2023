@@ -62,37 +62,25 @@ else{
 	</style>
 </head>
 <body>
+	<div class="w3-padding clearfix">
+		<button class="btn btn-sm btn-outline-info" onclick="$('#menu-drop').show();"><i class="fa fa-bars"></i></button>
+		<button class="btn btn-sm btn-outline-danger float-right" onclick="$('#edit_profile_modal').show();"><?=$username;?></button>
+	</div>
 	<div class="w3-row">
-		<div class="w3-col m2" style="height:calc(100%);" id="leftNav">
-			<div class="bg-info w3-row w3-border-bottom w3-border-black" style="height:calc(100%);">
-				<div class="w3-padding">
-					<div class="pb-2" id="heading"><b>School Report System</b></div>
-					<div class="py-3">
-						<a href="#" class="w3-text-white" onclick="$('#edit_profile_modal').show();"><?="$username";?></a>
-					</div>
-				</div>
-				<div class="" id="topLinks">
-					<button class="bn pointer w3-padding tp w3-block activeBtn" data="home">Home</button>
-					<button class="bn pointer w3-padding tp w3-block" data="register">Register</button>
-					<button class="bn pointer w3-padding tp w3-block" data="results">Results</button> 
-					<button class="w3-hover-text-red pointer pointer w3-right w3-padding tp w3-block" onclick="$('#logout_modal').show();">Logout</button>
-				</div>
-			</div>
-		</div>
 		<div class="w3-col m10" id="rightNav">
 			<p>&nbsp;</p>
 			<div class="w3-row">
 				<div class="w3-col m1 w3-hide-small">&nbsp;</div>
 				<div class="w3-col m10 w3-border">
 					<div class="w3-row w3-padding-jumbo tt" id="home">
-						<div class="w3-col m6 pointer w3-hover-text-blue" onclick="home(2)">
+						<div class="w3-col s6 pointer w3-hover-text-blue" onclick="home(2)">
 							<center>
 								<i class="fa fa-user-graduate fa-4x"></i>
 								<br><br>
 								<h3>Results</h3>
 							</center>
 						</div>
-						<div class="w3-col m6 pointer w3-hover-text-blue" onclick="home(3)">
+						<div class="w3-col s6 pointer w3-hover-text-blue" onclick="home(3)">
 							<center>
 								<i class="fa fa-outdent fa-4x"></i>
 								<br><br>
@@ -339,6 +327,22 @@ else{
 			</div>
 		</div>
 
+<div class="w3-col m2" style="height:calc(100%);background: rgba(0, 0, 0, .30);position: fixed;width: 100%;top: 0;left: 0;display: none;" id="menu-drop" onclick="$(this).hide();">
+	<div class="bg-info w3-row w3-border-bottom w3-border-black w3-animate-left" style="height:calc(100%);width: 80%;" onclick="e=>e.stopPropagation();">
+		<div class="w3-padding">
+			<div class="pb-2" id="heading"><b>School Report System</b></div>
+			<div class="py-3">
+				<a href="#" class="w3-text-white" onclick="$('#edit_profile_modal').show();"><?=$username;?></a>
+			</div>
+		</div>
+		<div class="" id="topLinks">
+			<button class="bn pointer w3-padding tp w3-block activeBtn" data="home">Home</button>
+			<button class="bn pointer w3-padding tp w3-block" data="register">Register</button>
+			<button class="bn pointer w3-padding tp w3-block" data="results">Results</button> 
+			<button class="w3-hover-text-red pointer pointer w3-right w3-padding tp w3-block" onclick="$('#logout_modal').show();">Logout</button>
+		</div>
+	</div>
+</div>
 </body>
 <link rel="stylesheet" type="text/css" href="../media/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="../media/css/dataTables.jqueryui.css">

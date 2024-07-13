@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Login Portal</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script type="text/javascript" src="stopusers.js"></script>
 	<link rel="stylesheet" type="text/css" href="w3css/w3.css">
 	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
