@@ -44,7 +44,7 @@ elseif (isset($_POST['edit_profile'], $_POST['phone_edit'], $_SESSION['user_id']
 	$old_hash = md5($old_password);
 	$sql_check = $db->query("SELECT * FROM staff WHERE id = '$user_id' AND password = '$old_hash' ");
 	$df = $sql_check->fetchArray();
-	if ($data) {
+	if ($df) {
 		$pass_hash = md5($new_password);
 
 		$upd = $db->query("UPDATE staff SET phone = '$phone', fullname = '$fullname', password = '$pass_hash' WHERE id = '$user_id' ");
@@ -411,17 +411,17 @@ elseif (isset($_GET['downloadMarkingTemplate'])) {
 		$string .= "\n".trim(trim($student->reg)).",".trim(trim(str_replace("\n", "", $student->getName()))).",".trim(trim(str_replace("\n", "", $student->getVillage()))).",,";
 	}
 
-	$file = "templates/".$subjectObj->getName()."-form $form-term $term.csv";
+	$file = $new_file_name = "templates/".$subjectObj->getName()."-form $form-term $term.csv";
 
 	if (file_put_contents($file, $string)) {
 	    header('Content-Description: File Transfer');
-	    header('Content-Type: application/octet-stream');
-	    header('Content-Disposition: attachment; filename="'.basename($file).'"');
-	    header('Expires: 0');
-	    header('Cache-Control: must-revalidate');
-	    header('Pragma: public');
-	    header('Content-Length: ' . filesize($file));
-	    readfile($file);
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="'.basename($new_file_name).'"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($new_file_name));
+        readfile($new_file_name);
 	    exit;
 	}
 	else{
@@ -600,7 +600,16 @@ elseif (isset($_GET['downloadExtraTemplate'])) {
 
 	$filename = "uploads/".trim(trim($subject_data['name']))." form $form term $term.csv";
 	file_put_contents($filename, $text);
-	header("location: ".$filename);
+	//header("location: ".$filename);
+
+	header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($filename));
+    readfile($filename);
 }
 elseif (isset($_GET['uploadStudentExtraExams'])) {
 	$student = $_SESSION['student'] = (int)trim($_GET['uploadStudentExtraExams']);

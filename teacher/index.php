@@ -15,11 +15,11 @@ if (isset($_SESSION['user_id'])) {
 		$user_phone = $data['phone'];
 	}
 	else{
-		header("Loction: ../logout.php");
+		header("Location: ../logout.php");
 	}
 }
 else{
-	header("Loction: ../logout.php");
+	header("Location: ../logout.php");
 }
 ?>
 <!DOCTYPE html>
@@ -41,6 +41,7 @@ else{
 	<script type="text/javascript" src="../vendor/bootstrap/js/bootstrap.min.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="../resources/rodz.css">
+	<link rel="stylesheet" type="text/css" href="../resources/tailwind.css">
 	<script type="text/javascript" src="../resources/rodz.js"></script>
 	<style type="text/css">
 		.pointer:hover{
@@ -167,11 +168,6 @@ else{
 			        		<p><select name="group" class="form-control" required>
 			        			<option value="">--Choose group</option>
 			        			<option>DAY</option>
-			        			<option>B</option>
-			        			<option>C</option>
-			        			<option>D</option>
-			        			<option>E</option>
-			        			<option>F</option>
 			        			<option>OPEN</option>
 			        			<option>EVENING</option>
 			        			<option>G</option>
@@ -220,11 +216,6 @@ else{
 			        		<p><select name="group" class="form-control" required>
 			        			<option value="">--Choose group</option>
 			        			<option>DAY</option>
-			        			<option>B</option>
-			        			<option>C</option>
-			        			<option>D</option>
-			        			<option>E</option>
-			        			<option>F</option>
 			        			<option>OPEN</option>
 			        			<option>EVENING</option>
 			        			<option>G</option>
@@ -284,11 +275,6 @@ else{
 			        		<p><select name="group" class="form-control" required>
 			        			<option value="">--Choose group</option>
 			        			<option>DAY</option>
-			        			<option>B</option>
-			        			<option>C</option>
-			        			<option>D</option>
-			        			<option>E</option>
-			        			<option>F</option>
 			        			<option>OPEN</option>
 			        			<option>EVENING</option>
 			        			<option>G</option>
@@ -344,11 +330,6 @@ else{
 			        		<p><select name="group" class="form-control" required>
 			        			<option value="">--Choose group</option>
 			        			<option>DAY</option>
-			        			<option>B</option>
-			        			<option>C</option>
-			        			<option>D</option>
-			        			<option>E</option>
-			        			<option>F</option>
 			        			<option>OPEN</option>
 			        			<option>EVENING</option>
 			        			<option>G</option>
@@ -419,8 +400,8 @@ else{
 </div>
 
 <div class="w3-modal" id="edit_profile_modal">
-	<div class="w3-modal-content w3-card-16 w3-round-large" style="width: 300px;">
-		<div class="w3-padding-large bg-info rounded-top w3-text-white">
+	<div class="w3-modal-content w3-card-16 rounded-2xl" style="width: 300px;">
+		<div class="w3-padding-large w3-text-white">
 			Edit Profile <i class="fa fa-times w3-right w3-hover-text-red pointer" onclick="$('#edit_profile_modal').fadeOut();"></i>
 		</div>
 		<div class="w3-padding-large">

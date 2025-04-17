@@ -10,25 +10,34 @@ if (isset($_SESSION['user_id'])) {
 	$user_id = $_SESSION['user_id'];
 
 	$sql = $db->query("SELECT * FROM staff WHERE id = '$user_id' AND role = 'head' ");
-	$sql = $db->query("SELECT * FROM student WHERE id = '$user_id' AND village = 'village' ");
+	//$sql = $db->query("SELECT * FROM student WHERE id = '$user_id' AND village = 'village' ");
 	$data = $sql->fetchArray();
 	if ($data) {
 		$username = $data['fullname'];
 		$user_phone = $data['phone'];
-		$village = $data['village'];
+		//$village = $data['village'];
 	}
 	else{
-		header("Loction: ../logout.php");
+		header("Location: ../logout.php");
 	}
 }
 else{
-	header("Loction: ../logout.php");
+	header("Location: ../logout.php");
 }
 
 $years = [];
 $r = $db->query("SELECT * FROM year");
 while ($row = $r->fetchArray()) {
 	$years[$row['id']] = $row['name'];
+}
+
+$settings = [];
+$r = $db->query("SELECT * FROM systemctl");
+while ($row = $r->fetchArray()) {
+	$settings[$row['name']] = $row['value'];
+}
+if (!isset($settings['next_term'])) {
+	$settings['next_term'] = "";
 }
 ?>
 <!DOCTYPE html>
@@ -273,7 +282,19 @@ while ($row = $r->fetchArray()) {
 									$r = $db->query("SELECT * FROM exams");
 									$i = 1;
 									while ($row = $r->fetchArray()) {
-										echo "<tr><td>$i</td><td>{$row['name']}</td><td>".$years[$row['year']]."</td><td>{$row['term']}</td><td>{$row['form']}</td><td><button class='btn btn-danger btn-sm deleteExam' data='{$row['id']}'>Delete</button></td></tr>";
+										?>
+										<tr>
+											<td><?=$i;?></td>
+											<td><?=$row['name'];?></td>
+											<td><?=$years[$row['year']];?></td>
+											<td><?=$row['term'];?></td>
+											<td><?=$row['form'];?></td>
+											<td>
+												<button class='btn btn-outline-danger btn-sm deleteExam' data='<?=$row['id'];?>'>Delete</button>
+												<button class='btn btn-outline-warning btn-sm editExam' data='<?=$row['id'];?>'>Edit</button>
+											</td>
+										</tr>
+										<?php
 										$i += 1;
 									}
 									?>
@@ -495,12 +516,6 @@ while ($row = $r->fetchArray()) {
 				        		<p><select name="group" class="form-control" required>
 				        			<option value="">--Choose group</option>
 				        			<option>DAY</option>
-				        			<option>B</option>
-				        			<option>C</option>
-				        			<option>D</option>
-				        			<option>E</option>
-				        			<option>F</option>
-				        			<option>G</option>
 				        			<option>OPEN</option>
 				        			<option>EVENING</option>
 				        		</select></p>
@@ -689,6 +704,26 @@ while ($row = $r->fetchArray()) {
 					students_table.destroy();
 					$('#all_students').load("rest_api.php?reload_students", function(){
 						var students_table = $('#students_table').DataTable();
+						//students_table.draw();
+					})
+				})
+			})
+		});
+	})
+
+	$(document).on('click', '.editExam', function(event){
+		$('#reusable').load("rest_api.php?open_exam_editor="+$(this).attr('data'), function(){
+			let form = document.getElementById("edit_year_form");
+			form.addEventListener('submit', function(event){
+				event.preventDefault();
+
+				$.post("rest_api.php", $(form).serialize(), response=>{
+					Toast(response);
+					$('#reusable').html('');
+					var students_table = $('#availableExams').DataTable();
+					students_table.destroy();
+					$('#allExtraExams').load("rest_api.php?reloadExtraExams", function(){
+						var students_table = $('#availableExams').DataTable();
 						//students_table.draw();
 					})
 				})
@@ -926,6 +961,21 @@ while ($row = $r->fetchArray()) {
 				catch(E){
 					alert(E.toString()+"\n"+response);
 				}
+			}
+		})
+	});
+
+	$('#edit_next_term_form').on('submit', function(event){
+		event.preventDefault();
+		var form_data = $(this).serialize();
+
+		$.ajax({
+			url: "rest_api.php",
+			method: "POST",
+			data: form_data,
+			success: function(response) {
+				Toast(response);
+				$('#next_term_modal').hide();
 			}
 		})
 	});

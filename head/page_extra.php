@@ -52,7 +52,7 @@ $pdf->Ln();
 $pdf->Cell(0,6,"Effort: ________________________________________ Behaviour: ____________________________________");
 $pdf->Ln();
 $pdf->SetFont('Times','B',12);
-$pdf->Cell(0,6,"Next Term Opening: 15 APRIL 2024                     ");
+$pdf->Cell(0,6,"Next Term Opening: ".date('d M Y', strtotime($settings['next_term'])));
 $pdf->SetFont('Times','',11);
 $pdf->Ln();
 $pdf->SetFont('Times','',10);
@@ -69,6 +69,8 @@ if ($form > 2)
 	$pdf->SetFont('Times','I',12);
 	$pdf->print_third("UNIFORM:.$uniform", "", "");
 	$pdf->print_third("FEES: K".$fees, "","");
+
+	$pdf->AddPage();
               
 	$pdf->Ln(2);
 	$pdf->print_half_half("VILLAGE: ".$student_village[$key], "CHURCH: ".$student_church[$key]); 
@@ -88,6 +90,7 @@ else{
 	$pdf->SetFont('Times','I',12);
 	$pdf->print_third("UNIFORM:.$uniform", "", "");
 
+	$pdf->AddPage();
                
     $pdf->SetFont('Times','',10);
 	$pdf->Ln(2);
@@ -97,5 +100,5 @@ else{
 	$pdf->Ln();
 }
 
-
+//write a stamp
 

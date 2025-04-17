@@ -218,3 +218,23 @@
 		Hello World To Our Toast
 	</div>
 </div>
+
+<div class="w3-modal" id="next_term_modal">
+	<div class="w3-modal-content w3-card-16 rounded-2xl p-4" style="width: 350px;">
+		<div class="w3-large pb-3">
+			Edit Opening Day <i class="fa fa-times w3-right w3-hover-text-red pointer" onclick="$('#next_term_modal').fadeOut();"></i>
+		</div>
+		<div>
+			<form id="edit_next_term_form">
+				<div id="edit_profile_result"></div>
+				<p>
+					Date 
+					<input type="date" name="next_term_value" value="<?=$settings['next_term'];?>" class="form-control" placeholder="New date" required>
+				</p>
+				
+				<button class="btn btn-info btn-block w3-round-jumbo" type="submit">Submit</button>
+				<input type="reset" name="" id="edit_profile_reset" style="display: none;">
+			</form>
+		</div>
+	</div>
+</div>

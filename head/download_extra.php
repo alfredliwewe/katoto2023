@@ -101,6 +101,15 @@ while ($row = $r->fetchArray()) {
 	$years[$row['id']] = $row['name'];
 }
 
+$settings = [];
+$r = $db->query("SELECT * FROM systemctl");
+while ($row = $r->fetchArray()) {
+	$settings[$row['name']] = $row['value'];
+}
+if (!isset($settings['next_term'])) {
+	$settings['next_term'] = "";
+}
+
 
 $subjects = [];
 $subject_scores = [];
@@ -144,8 +153,6 @@ $aggregate_store = [];
 
 
 if ($form > 2) {
-	
-               
 	$read = $db->query("SELECT DISTINCT student, student.regnumber,student.guardian,student.lamwa,student.church,student.village, student.fullname FROM extra_scores INNER JOIN student ON extra_scores.student = student.id WHERE form = '$form' AND term = '$term' AND year = '$year' AND exam = '$mode' ");
 	while ($row = $read->fetchArray()) {
 		$studentId = $row['student'];
@@ -248,32 +255,18 @@ else{
 
 $all_students = count($mega);
 
-$i = 1;
-$failed = [];
-$previous = 0;
-$pre_pos = 1;
-foreach ($mega as $key => $value) {
+$read = $db->query("SELECT * FROM ordered WHERE year = '$year' AND form = '$form' AND term = '$term' AND exam = '$mode' ");
+while ($row = $read->fetchArray()) {
+	$key = $row['student'];
+	$i = $pre_pos = $row['position'];
+
 	$calculated = $aggregate_store[$key];
-	if ($calculated[3]) {
-		$status = "PASS";
-		if($value == $previous){
-				
-		}
-		else{
-			$pre_pos = $i;
-		}
-		require 'page_extra.php';
-		//echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>$value</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
-		$i += 1;
-		$previous = $value;
-	}
-	else{
-		$failed[$key] = $value;
-		$status = "FAIL";
-	}
-
+	
+	$status = $row['status'];
+	
+	require 'page_extra.php';
 }
-
+/*
 $osamaliza_mayeso = [];
 foreach ($failed as $key => $value) {
 	$calculated = $aggregate_store[$key];
@@ -307,6 +300,6 @@ foreach ($osamaliza_mayeso as $key => $value) {
 	$i += 1;
 	$previous = $value;
 }
-
+*/
 $pdf->Output();
 ?>

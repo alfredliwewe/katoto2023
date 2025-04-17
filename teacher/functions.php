@@ -186,31 +186,31 @@ function ma_points($score)
 	if ($score < 1) {
 		return 9;
 	}
-	elseif ($score < 40) {
+	elseif ($score >= 0 && $score <= 39) {
 		return 9;
 	}
-	elseif ($score < 45) {
+	elseif ($score >= 40 && $score <= 44) {
 		return 8;
 	}
-	elseif ($score < 50) {
+	elseif ($score >= 45 && $score <= 49) {
 		return 7;
 	}
-	elseif ($score < 55) {
+	elseif ($score >= 50 && $score <= 54) {
 		return 6;
 	}
-	elseif ($score < 60) {
+	elseif ($score >= 55 && $score <= 59) {
 		return 5;
 	}
-	elseif ($score < 65) {
+	elseif ($score >= 60 && $score <= 64) {
 		return 4;
 	}
-	elseif ($score < 70) {
+	elseif ($score >= 65 && $score <= 69) {
 		return 3;
 	}
-	elseif ($score < 80) {
+	elseif ($score >= 70 && $score <= 79) {
 		return 2;
 	}
-	elseif ($score <= 100) {
+	elseif ($score >= 80 && $score <= 100) {
 		return 1;
 	}
 	else{
@@ -232,22 +232,22 @@ function ma_pointsShow($score, $form)
 		elseif ($score >= 40 && $score <= 44) {
 			return "8";
 		}
-		elseif ($score >= 45 && $score <= 52) {
+		elseif ($score >= 45 && $score <= 49) {
 			return "7";
 		}
-		elseif ($score >= 53 && $score <= 60) {
+		elseif ($score >= 50 && $score <= 54) {
 			return "6";
 		}
-		elseif ($score >= 61 && $score <= 65) {
+		elseif ($score >= 55 && $score <= 59) {
 			return "5";
 		}
-		elseif ($score >= 66 && $score <= 69) {
+		elseif ($score >= 60 && $score <= 64) {
 			return "4";
 		}
-		elseif ($score >= 70 && $score <= 74) {
+		elseif ($score >= 65 && $score <= 69) {
 			return "3";
 		}
-		elseif ($score >= 75 && $score <= 79) {
+		elseif ($score >= 70 && $score <= 79) {
 			return "2";
 		}
 		elseif ($score >= 80 && $score <= 100) {

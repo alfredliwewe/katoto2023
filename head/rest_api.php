@@ -429,7 +429,19 @@ elseif (isset($_GET['reloadExtraExams'])) {
 	$r = $db->query("SELECT * FROM exams");
 	$i = 1;
 	while ($row = $r->fetchArray()) {
-		echo "<tr><td>$i</td><td>{$row['name']}</td><td>".$years[$row['year']]."</td><td>{$row['term']}</td><td>{$row['form']}</td><td><button class='btn btn-danger btn-sm deleteExam' data='{$row['id']}'>Delete</button></td></tr>";
+		?>
+		<tr>
+			<td><?=$i;?></td>
+			<td><?=$row['name'];?></td>
+			<td><?=$years[$row['year']];?></td>
+			<td><?=$row['term'];?></td>
+			<td><?=$row['form'];?></td>
+			<td>
+				<button class='btn btn-outline-danger btn-sm deleteExam' data='<?=$row['id'];?>'>Delete</button>
+				<button class='btn btn-outline-warning btn-sm editExam' data='<?=$row['id'];?>'>Edit</button>
+			</td>
+		</tr>
+		<?php
 		$i += 1;
 	}
 }
@@ -559,7 +571,25 @@ elseif (isset($_GET['extraExcel'])) {
 	$failed = [];
 	$previous = 0;
 	$pre_pos = 1;
-	foreach ($mega as $key => $value) {
+
+	$read = $db->query("SELECT * FROM ordered WHERE year = '$year' AND form = '$form' AND term = '$term' AND exam = '$mode' ");
+	while ($row = $read->fetchArray()) {
+		$key = $row['student'];
+		$calculated = $aggregate_store[$key];
+		$myScore = $calculated[1];
+
+		$text .= "\n{$row['position']},".trim(trim(trim($student_names[$key]))).",{$row['points']},".trim(trim(trim($regnumbers[$key]))).",PASS";
+			
+		foreach ($subjects as $subjectId => $subjectName) {
+			if (isset($myScore[$subjectId])) {
+				$text .= ",".$myScore[$subjectId];
+			}
+			else{
+				$text .= ",";
+			}
+		}
+	}
+	/*foreach ($mega as $key => $value) {
 		$calculated = $aggregate_store[$key];
 		$myScore = $calculated[1];
 		if ($calculated[3]) {
@@ -649,13 +679,31 @@ elseif (isset($_GET['extraExcel'])) {
 		}
 		$i += 1;
 		$previous = $value;
-	}
+	}*/
 	$filename = "uploads/$exam_name form $form term $term.csv";
 	file_put_contents($filename, $text);
 
-	header("location: $filename");
+	// Set headers
+	header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($filename));
+    readfile($filename);
 }
 elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_POST['group'], $_POST['acayear'])) {
+	////////////
+	$settings = [];
+	$r = $db->query("SELECT * FROM systemctl");
+	while ($row = $r->fetchArray()) {
+		$settings[$row['name']] = $row['value'];
+	}
+	if (!isset($settings['next_term'])) {
+		$settings['next_term'] = "";
+	}
+
 	if ($_POST['mode'] == "0") {
 		$sql1 = $db->query("SELECT * FROM systemctl WHERE name = 'exam_uploading'");
 		$data = $sql1->fetchArray();
@@ -856,8 +904,10 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 			<br><br>
 			<button class="btn btn-info btn-sm" onclick="$('#upload_container').removeClass('m12').addClass('m8');$('#upload_view1').show();">Choose another class</button>
 		</div>
-		<div class="w3-padding">
+		<div class="w3-padding clearfix">
 			<a href="download_extra.php" target="_blank" class="btn btn-info">Downdlokkd reports</a> <a href="rest_api.php?extraExcel" class="btn btn-success"><i class="far fa-file-excel"></i> Scores Excel</a>
+
+			<font class="float-right">Next Term Opens: <b><?=$settings['next_term'];?></b> <a href="#" onclick="$('#next_term_modal').show();">Change</a></font>
 		</div>
 		<div class="table-responsive">
 			<table class="table table-striped">
@@ -976,38 +1026,35 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 					$values = [];
 					$sql_ref = "INSERT INTO ordered (`id`, `year`, `form`, `term`, `exam`, `position`, `student`, `reg`, `points`, `comments`, `remarks`, `status`, `subjects`, `average`) VALUES ";
 
-					$i = 1;
+					$i = 0;
 					$failed = [];
 					$previous = 0;
 					$pre_pos = 1;
 					foreach ($mega as $key => $value) {
 						$calculated = $aggregate_store[$key];
 						$reg = $regnumbers[$key];
-						
+
 						if ($calculated[3]) {
+							if ($value != $previous) {
+								$i += 1;
+							}
+							$previous = $value;
+
 							$status = "PASS";
 
-							if($value == $previous){
-							}
-							else{
-								$pre_pos = $i;
-							}
-
 							if ($form > 2) {
-								echo "<tr><td>$pre_pos</td><td>".$student_names[$key]."</td><td>$value</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
+								echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>$value</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 							}
 							else{
-								echo "<tr><td>$pre_pos</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
+								echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 							}
 							
-							$previous = $value;
+							
 							$count = count($calculated[1]);
 							$average = (int)(array_sum(array_values($calculated[1]))/$count);
 
 							//add to values
 							array_push($values, "(NULL, '$year','$form','$term','$mode', '$i','$key','$reg','$value','','','$status','$count','$average')");
-
-							$i += 1;
 						}
 						else{
 							$failed[$key] = $value;
@@ -1023,12 +1070,10 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 						$reg = $regnumbers[$key];
 
 						if (count($calculated[1]) > 5) {
-
-							if($value == $previous){
+							if ($value != $previous) {
+								$i += 1;
 							}
-							else{
-								$pre_pos = $i;
-							}
+							$previous = $value;
 
 							if ($form > 2) {
 								echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>$value</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
@@ -1036,16 +1081,12 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 							else{
 								echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 							}
-							
-							$previous = $value;
 
 							$count = count($calculated[1]);
 							$average = (int)(array_sum(array_values($calculated[1]))/$count);
 
 							//add to values
 							array_push($values, "(NULL, '$year','$form','$term','$mode','$i','$key','$reg','$value','','','FAILED','$count','$average')");
-
-							$i += 1;
 						}
 						else{
 							$osamaliza_mayeso[$key] = $value;
@@ -1055,27 +1096,23 @@ elseif (isset($_POST['start_upload_service'], $_POST['term'], $_POST['form'], $_
 					foreach ($osamaliza_mayeso as $key => $value) {
 						$reg = $regnumbers[$key];
 
-						if($value == $previous){
+						if ($value != $previous) {
+							$i += 1;
 						}
-						else{
-							$pre_pos = $i;
-						}
+						$previous = $value;
+
 						if ($form > 2) {
 							echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>$value</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 						}
 						else{
 							echo "<tr><td>$i</td><td>".$student_names[$key]."</td><td>".$calculated[2]."</td><td>".$regnumbers[$key]."</td><td>$status</td></tr>";
 						}
-						
-						$previous = $value;
 
 						$count = count($calculated[1]);
 							$average = (int)(array_sum(array_values($calculated[1]))/$count);
 
 						//add to values
 						array_push($values, "(NULL, '$year','$form','$term','$mode','$i','$key','$reg','$value','','','FAILED','$count','$average')");
-
-						$i += 1;
 					}
 
 					$chuncks = array_chunk($values, 80);
@@ -1119,6 +1156,77 @@ elseif (isset($_GET['open_student_editor'])) {
 		</div>
 	</div>
 	<?php
+}
+elseif (isset($_GET['open_exam_editor'])) {
+	$data = getData("exams", ['id' => (int)$_GET['open_exam_editor']]);
+	?>
+	<div class="drawer">
+		<div class="drawer-container p-3">
+			<font class="block text-lg">Edit Exam</font>
+
+			<form id="edit_year_form" class="pt-3">
+				<div id="edit_student_result"></div>
+				<input type="hidden" name="exam_id" value="<?=$data['id'];?>">
+				<p>
+					Exam name
+					<input type="text" name="name_exam_edit" class="form-control" value="<?=$data['name'];?>" required>
+				</p>
+				<p><select name="acayear" class="form-control" required>
+        			<option value="">--Choose academic year</option>
+        			<?php
+        			$read = $db->query("SELECT * FROM year");
+        			while ($row = $read->fetchArray()) {
+        				echo "<option value=\"{$row['id']}\" ".($data['year'] == $row['id'] ? "selected":"").">{$row['name']}</option>";
+        			}
+        			?>
+        		</select></p>
+        		<p><select name="form" class="form-control" required>
+        			<option value="">--Choose form</option>
+        			<?php
+        			foreach ([1,2,3,4] as $form) {
+        				echo "<option value=\"{$form}\" ".($data['form'] == $form ? "selected":"").">Form {$form}</option>";
+        			}
+        			?>
+        		</select></p>
+        		<p><select name="term" class="form-control" required>
+        			<option value="">--Choose term</option>
+        			<?php
+        			foreach ([1,2,3,4] as $form) {
+        				echo "<option value=\"{$form}\" ".($data['term'] == $form ? "selected":"").">Term {$form}</option>";
+        			}
+        			?>
+        		</select></p>
+        		<br>
+        		<p>
+        			<input type="reset" name="reset" style="display: none;">
+        			<button class="btn btn-info" type="submit">Save Changes</button>
+        		</p>
+			</form>
+		</div>
+	</div>
+	<?php
+}
+elseif(isset($_POST['exam_id'], $_POST['name_exam_edit'], $_POST['acayear'], $_POST['form'], $_POST['term'])){
+	db_update("exams", [
+		'name' => $_POST['name_exam_edit'],
+		'year' => $_POST['acayear'],
+		'form' => $_POST['form'],
+		'term' => $_POST['term']
+	], ['id' => $_POST['exam_id']]);
+
+	echo "Successfully updated exam";
+}
+elseif (isset($_POST['next_term_value'])) {
+	$check = getData("systemctl", ['name' => 'next_term']);
+	if ($check != null) {
+		db_update("systemctl", ['value' => $_POST['next_term_value']], ['name' => 'next_term']);
+
+		echo "Success";
+	}
+	else{
+		$db->query("INSERT INTO systemctl (name,value) VALUES ('next_term', '{$_POST['next_term_value']}')");
+		echo "Added";
+	}
 }
 elseif(isset($_POST['student_id'], $_POST['reg_number_edit'], $_POST['fullname'], $_POST['village'], $_POST['church'], $_POST['guardian'])){
 	db_update("student", [

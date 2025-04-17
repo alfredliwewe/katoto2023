@@ -44,7 +44,7 @@ elseif (isset($_POST['edit_profile'], $_POST['phone_edit'], $_SESSION['user_id']
 	$old_hash = md5($old_password);
 	$sql_check = $db->query("SELECT * FROM staff WHERE id = '$user_id' AND password = '$old_hash' ");
 	$df = $sql_check->fetchArray();
-	if ($data) {
+	if ($df) {
 		$pass_hash = md5($new_password);
 
 		$upd = $db->query("UPDATE staff SET phone = '$phone', fullname = '$fullname', password = '$pass_hash' WHERE id = '$user_id' ");

@@ -41,6 +41,7 @@ else{
 	<script type="text/javascript" src="../vendor/bootstrap/js/bootstrap.min.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="../resources/rodz.css">
+	<link rel="stylesheet" type="text/css" href="../resources/tailwind.css">
 	<script type="text/javascript" src="../resources/rodz.js"></script>
 	<style type="text/css">
 		.pointer:hover{
@@ -443,11 +444,11 @@ else{
 </div>
 
 <div class="w3-modal" id="edit_profile_modal">
-	<div class="w3-modal-content w3-card-16 w3-round-large" style="width: 300px;">
-		<div class="w3-padding-large bg-info rounded-top w3-text-white">
+	<div class="w3-modal-content w3-card-16 rounded-2xl p-4" style="width: 400px;">
+		<div class="w3-large pb-3">
 			Edit Profile <i class="fa fa-times w3-right w3-hover-text-red pointer" onclick="$('#edit_profile_modal').fadeOut();"></i>
 		</div>
-		<div class="w3-padding-large">
+		<div>
 			<form id="edit_profile_form">
 				<div id="edit_profile_result"></div>
 				<p>Username<input type="text" name="phone_edit" value="<?="$user_phone";?>" class="form-control" placeholder="Enter new phone number..." style="border-radius: 0;border-top: none;border-left: none;border-right: none;" required></p>
@@ -456,7 +457,7 @@ else{
 				<p>Enter old password<input type="password" name="old_password" class="form-control"  value="<?="$username";?>" placeholder="Enter old password.." style="border-radius: 0;border-top: none;border-left: none;border-right: none;" required></p>
 				<p>Enter new password<input type="password" name="new_password" class="form-control"  value="<?="$username";?>" placeholder="Enter new password.." style="border-radius: 0;border-top: none;border-left: none;border-right: none;" required></p>
 				<input type="hidden" name="edit_profile" value="true">
-				<button class="btn btn-info btn-block" type="submit">Update profile</button>
+				<button class="btn btn-info btn-block w3-round-jumbo" type="submit">Update profile</button>
 				<input type="reset" name="" id="edit_profile_reset" style="display: none;">
 			</form>
 		</div>
